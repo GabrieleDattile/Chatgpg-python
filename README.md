@@ -1,7 +1,7 @@
 
 # Chat criptata con Python e gnupg
 
-Questo script permette di scambiare messaggi cifrati con un'altra persona usando la crittografia a chiave pubblica. Il modulo gnupg[^1^][1] viene usato per generare, esportare, importare, cifrare e decifrare le chiavi. Il modulo socket[^5^][5] viene usato per creare una connessione di rete tra le due persone.
+Questo script permette di scambiare messaggi cifrati con un'altra persona usando la crittografia a chiave pubblica. Il modulo gnupg viene usato per generare, esportare, importare, cifrare e decifrare le chiavi. Il modulo socket viene usato per creare una connessione di rete tra le due persone.
 
 ## Requisiti
 
