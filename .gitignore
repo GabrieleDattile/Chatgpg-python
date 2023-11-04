@@ -1,160 +1,63 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+# Importo il modulo gnupg per usare il servizio GPG
+import gnupg
 
-# C extensions
-*.so
+# Creo un'istanza di GPG
+gpg = gnupg.GPG()
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+# Genero una coppia di chiavi pubblica e privata per ogni persona
+key1 = gpg.gen_key(gpg.gen_key_input(name_email='persona1@example.com'))
+key2 = gpg.gen_key(gpg.gen_key_input(name_email='persona2@example.com'))
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+# Esporto le chiavi pubbliche in formato ASCII
+pubkey1 = gpg.export_keys(key1.fingerprint)
+pubkey2 = gpg.export_keys(key2.fingerprint)
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+# Importo le chiavi pubbliche nell'anello delle chiavi di GPG
+gpg.import_keys(pubkey1)
+gpg.import_keys(pubkey2)
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-cover/
+# Definisco una funzione per cifrare un messaggio con la chiave pubblica del destinatario
+def encrypt_message(message, recipient):
+    return str(gpg.encrypt(message, recipient))
 
-# Translations
-*.mo
-*.pot
+# Definisco una funzione per decifrare un messaggio con la propria chiave privata
+def decrypt_message(message, passphrase):
+    return str(gpg.decrypt(message, passphrase=passphrase))
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
+# Apro una porta per comunicare con l'altra persona
+import socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.bind(('', 1234))
+sock.listen(1)
 
-# Flask stuff:
-instance/
-.webassets-cache
+# Accetto la connessione dall'altra persona
+conn, addr = sock.accept()
+print('Connesso con', addr)
 
-# Scrapy stuff:
-.scrapy
+# Invio la mia chiave pubblica all'altra persona
+conn.sendall(pubkey1.encode())
 
-# Sphinx documentation
-docs/_build/
+# Ricevo la chiave pubblica dell'altra persona
+pubkey2 = conn.recv(1024).decode()
+gpg.import_keys(pubkey2)
 
-# PyBuilder
-.pybuilder/
-target/
+# Scrivo un messaggio da inviare all'altra persona
+message = input('Scrivi un messaggio: ')
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# Cifro il messaggio con la chiave pubblica dell'altra persona
+encrypted_message = encrypt_message(message, 'persona2@example.com')
 
-# IPython
-profile_default/
-ipython_config.py
+# Invio il messaggio cifrato all'altra persona
+conn.sendall(encrypted_message.encode())
 
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-# .python-version
+# Ricevo il messaggio cifrato dall'altra persona
+encrypted_message = conn.recv(1024).decode()
 
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
+# Decifro il messaggio con la mia chiave privata
+decrypted_message = decrypt_message(encrypted_message, 'persona1@example.com')
 
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-#poetry.lock
+# Stampo il messaggio decifrato
+print('Messaggio ricevuto:', decrypted_message)
 
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#pdm.lock
-#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
-#   in version control.
-#   https://pdm.fming.dev/#use-with-ide
-.pdm.toml
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
+# Chiudo la connessione
+conn.close()
