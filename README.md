@@ -11,13 +11,13 @@ Per eseguire questo script, devi avere installato Python 3 e il modulo gnupg. Pu
 
 ## Uso
 
-Per avviare lo script, salva il file con estensione .py, ad esempio chat.py, e rendilo eseguibile con il comando:
+Per avviare lo script, salva il file con estensione .py, ad esempio chatgpg.py, e rendilo eseguibile con il comando:
 
-`chmod a+x chat.py`
+`chmod a+x chatgpg.py`
 
 Poi esegui il comando:
 
-`./chat.py`
+`./chatgpg.py`
 
 Se sei la persona che ha aperto la porta 1234, aspetta che l'altra persona si connetta a te.
 
